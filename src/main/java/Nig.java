@@ -18,12 +18,25 @@ public class Nig {
         String line;
         Scanner in = new Scanner(System.in);
 
+        String[] tasks = new String[100];
+        int taskCount = 0;
+
         while (true) {
             line = in.nextLine();
             if (line.equals("bye")) {
                 break;
             }
-            System.out.println(separator + " " + line + "\n" + separator);
+            if (line.equals("list")) {
+                System.out.println(separator);
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println(" " + (i + 1) + ". " + tasks[i]);
+                }
+                System.out.println(separator);
+            } else {
+                tasks[taskCount] = line;
+                taskCount++;
+                System.out.println(separator + " added: " + line + "\n" + separator);
+            }
         }
 
         System.out.println(goodbye);
