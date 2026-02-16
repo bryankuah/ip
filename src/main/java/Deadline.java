@@ -11,4 +11,8 @@ public class Deadline extends Task {
     public String toString() {
         return "[D]" + super.toString() + " (by: " + by + ")";
     }
+
+    public String toFileFormat() {
+        return super.toFileFormat() + " | deadline " + description + " /by " + by;
+    }
 }
