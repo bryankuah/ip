@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.Arrays;
+import java.util.ArrayList;
 
 public class Nig {
     private static final String LOGO = "____________________________________________________________\n"
@@ -14,8 +15,7 @@ public class Nig {
     private static final String SEPARATOR = "____________________________________________________________";
 
 
-    private static Task[] tasks = new Task[100];
-    private static int taskCount = 0;
+    private static ArrayList<Task> tasks = new ArrayList<>();
 
     public static boolean isNotInteger(String str) {
         if (str == null) {
@@ -33,8 +33,8 @@ public class Nig {
     private static void listTasks() {
         System.out.println(SEPARATOR);
         System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            Task currentTask = tasks[i];
+        for (int i = 0; i < tasks.size(); i++) {
+            Task currentTask = tasks.get(i);
             System.out.print(" " + (i + 1) + ".");
             System.out.println(currentTask);
         }
@@ -51,10 +51,10 @@ public class Nig {
             throw new BadFormatException();
         }
         int taskNumber = Integer.parseInt(words[1]);
-        if (taskNumber > taskCount) {
+        if (taskNumber > tasks.size()) {
             throw new BadFormatException();
         }
-        Task taskToMark = tasks[taskNumber - 1];
+        Task taskToMark = tasks.get(taskNumber - 1);
         taskToMark.markAsDone();
         System.out.println(SEPARATOR);
         System.out.println(" Nice! I've marked this task as done:");
@@ -72,10 +72,10 @@ public class Nig {
             throw new BadFormatException();
         }
         int taskNumber = Integer.parseInt(words[1]);
-        if (taskNumber > taskCount) {
+        if (taskNumber > tasks.size()) {
             throw new BadFormatException();
         }
-        Task taskToMark = tasks[taskNumber - 1];
+        Task taskToMark = tasks.get(taskNumber - 1);
         taskToMark.markAsUndone();
         System.out.println(SEPARATOR);
         System.out.println(" OK, I've marked this task as not done yet:");
@@ -83,14 +83,34 @@ public class Nig {
         System.out.println(SEPARATOR);
     }
 
-    // Print latest task and increment taskCount
     private static void handleNewTask() {
         System.out.println(SEPARATOR);
         System.out.println(" Got it. I've added this task:");
         System.out.print("   ");
-        System.out.println(tasks[taskCount]);
-        taskCount++;
-        System.out.println(" Now you have " + taskCount + " tasks in the list.");
+        System.out.println(tasks.get(tasks.size() - 1));
+        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
+        System.out.println(SEPARATOR);
+    }
+
+    private static void deleteTask(String[] words)
+            throws EmptyBodyException, BadFormatException {
+        if (words.length < 2) {
+            throw new EmptyBodyException();
+        }
+        if (isNotInteger(words[1])) {
+            throw new BadFormatException();
+        }
+        int taskNumber = Integer.parseInt(words[1]);
+        if (taskNumber > tasks.size()) {
+            throw new BadFormatException();
+        }
+        Task taskToDelete = tasks.get(taskNumber - 1);
+        System.out.println(SEPARATOR);
+        System.out.println(" Noted. I've removed this task:");
+        System.out.print("   ");
+        System.out.println(taskToDelete);
+        tasks.remove(taskNumber - 1);
+        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
         System.out.println(SEPARATOR);
     }
 
@@ -101,7 +121,7 @@ public class Nig {
             throw new EmptyBodyException();
         }
         String description = String.join(" ", Arrays.copyOfRange(words, 1, words.length));
-        tasks[taskCount] = new Todo(description);
+        tasks.add(new Todo(description));
         handleNewTask();
     }
 
@@ -117,7 +137,7 @@ public class Nig {
         }
         String description = String.join(" ", Arrays.copyOfRange(words, 1, byIndex));
         String by = String.join(" ", Arrays.copyOfRange(words, byIndex + 1, words.length));
-        tasks[taskCount] = new Deadline(description, by);
+        tasks.add(new Deadline(description, by));
         handleNewTask();
     }
 
@@ -138,7 +158,7 @@ public class Nig {
         String description = String.join(" ", Arrays.copyOfRange(words, 1, fromIndex));
         String from = String.join(" ", Arrays.copyOfRange(words, fromIndex + 1, toIndex));
         String to = String.join(" ", Arrays.copyOfRange(words, toIndex + 1, words.length));
-        tasks[taskCount] = new Event(description, from, to);
+        tasks.add(new Event(description, from, to));
         handleNewTask();
     }
 
@@ -159,6 +179,8 @@ public class Nig {
                 addDeadline(words);
             } else if (command.equals("event")) {
                 addEvent(words);
+            } else if (command.equals("delete")) {
+                deleteTask(words);
             } else {
                 throw new UnknownCommandException();
             }
@@ -184,6 +206,8 @@ public class Nig {
             System.out.println("please input a task number to mark");
         } else if (command.equals("unmark")) {
             System.out.println("please input a task number to unmark");
+        } else if (command.equals("delete")) {
+            System.out.println("please input a task number to delete");
         } else if (command.equals("todo")) {
             System.out.println("description of todo cannot be empty");
         } else if (command.equals("deadline")) {
@@ -199,10 +223,16 @@ public class Nig {
         System.out.print(" ERROR: incorrect usage of ");
         if (command.equals("mark")) {
             System.out.println("mark");
+            System.out.println(" Please use a valid task number");
             System.out.println(" Proper Format: mark <number>");
         } else if (command.equals("unmark")) {
             System.out.println("unmark");
+            System.out.println(" Please use a valid task number");
             System.out.println(" Proper Format: unmark <number>");
+        } else if (command.equals("delete")) {
+            System.out.println("delete");
+            System.out.println(" Please use a valid task number");
+            System.out.println(" Proper Format: delete <number>");
         } else if (command.equals("todo")) {
             System.out.println("todo");
             System.out.println(" Proper Format: todo <description>");
