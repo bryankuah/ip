@@ -22,4 +22,14 @@ public class TaskList {
     public int getSize() {
         return tasks.size();
     }
+
+    public TaskList findTasks(String keyword) {
+        TaskList matchingTasks = new TaskList();
+        for (Task task : tasks) {
+            if (task.getDescription().contains(keyword)) {
+                matchingTasks.addTask(task);
+            }
+        }
+        return matchingTasks;
+    }
 }
