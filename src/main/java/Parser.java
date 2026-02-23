@@ -64,6 +64,13 @@ public class Parser {
         try {
             if (command.equals("list")) {
                 ui.showTaskList(tasks);
+            } else if (command.equals("find")) {
+                if (words.length < 2) {
+                    throw new EmptyBodyException();
+                }
+                // join all the words after the "find" command to form the search keyword
+                String keyword = String.join(" ", Arrays.copyOfRange(words, 1, words.length));
+                ui.showMatchingTasks(tasks.findTasks(keyword));
             } else if (command.equals("mark") || command.equals("unmark") || command.equals("delete")) {
                 if (words.length < 2) {
                     throw new EmptyBodyException();

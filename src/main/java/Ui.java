@@ -76,6 +76,17 @@ public class Ui {
         showLine();
     }
 
+    public void showMatchingTasks(TaskList tasks) {
+        showLine();
+        System.out.println(" Here are the matching tasks in your list:");
+        for (int i = 0; i < tasks.getSize(); i++) {
+            Task currentTask = tasks.getTask(i);
+            System.out.print(" " + (i + 1) + ".");
+            System.out.println(currentTask);
+        }
+        showLine();
+    }
+
     public void handleUnknownCommand() {
         showLine();
         System.out.println(" ERROR: command unknown");
@@ -91,6 +102,8 @@ public class Ui {
             System.out.println("please input a task number to unmark");
         } else if (command.equals("delete")) {
             System.out.println("please input a task number to delete");
+        } else if (command.equals("find")) {
+            System.out.println("please input a keyword to find");
         } else if (command.equals("todo")) {
             System.out.println("description of todo cannot be empty");
         } else if (command.equals("deadline")) {
