@@ -2,14 +2,14 @@ import java.util.Scanner;
 
 public class Ui {
 
-    private static final String SEPARATOR = "____________________________________________________________\n";
+    private static final String SEPARATOR = "____________________________________________________________";
 
-    private static final String LOGO = SEPARATOR
+    private static final String LOGO = SEPARATOR + "\n"
             + " Hello! I'm NIG\n"
             + " What can I do for you?\n"
             + SEPARATOR;
 
-    private static final String GOODBYE = SEPARATOR
+    private static final String GOODBYE = SEPARATOR + "\n"
             + " Bye. Hope to see you again soon!\n"
             + SEPARATOR;
 
@@ -24,15 +24,15 @@ public class Ui {
     }
 
     public void showWelcomeMessage() {
-        System.out.print(LOGO);
+        System.out.println(LOGO);
     }
 
     public void showGoodbyeMessage() {
-        System.out.print(GOODBYE);
+        System.out.println(GOODBYE);
     }
 
     public void showLine() {
-        System.out.print(SEPARATOR);
+        System.out.println(SEPARATOR);
     }
 
     public void showTaskList(TaskList tasks) {
@@ -79,7 +79,8 @@ public class Ui {
     public void handleUnknownCommand() {
         showLine();
         System.out.println(" ERROR: command unknown");
-        showLine();}
+        showLine();
+    }
 
     public void handleEmptyBody(String command) {
         showLine();
