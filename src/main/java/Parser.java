@@ -1,7 +1,17 @@
 import java.util.Arrays;
 
+/**
+ * Parses user input strings and dispatches the appropriate command logic.
+ * Also handles parsing of task strings read from storage.
+ */
 public class Parser {
 
+    /**
+     * Returns true if the given string cannot be parsed as an integer.
+     *
+     * @param str The string to check.
+     * @return True if not a valid integer, false otherwise.
+     */
     public static boolean isNotInteger(String str) {
         if (str == null) return true;
         try {
@@ -12,11 +22,24 @@ public class Parser {
         }
     }
 
+    /**
+     * Creates a Todo task from the parsed command words.
+     *
+     * @param words The command split by spaces; words[0] is "todo".
+     * @return A new Todo task.
+     */
     private static Todo createTodo(String[] words) {
         String description = String.join(" ", Arrays.copyOfRange(words, 1, words.length));
         return new Todo(description);
     }
 
+    /**
+     * Creates a Deadline task from the parsed command words.
+     * Expects a "/by" token separating description from the due date.
+     *
+     * @param words The command split by spaces; words[0] is "deadline".
+     * @return A new Deadline task.
+     */
     private static Deadline createDeadline(String[] words) {
         int byIndex = 0;
         while (!words[byIndex].equals("/by")) {
@@ -27,6 +50,13 @@ public class Parser {
         return new Deadline(description, by);
     }
 
+    /**
+     * Creates an Event task from the parsed command words.
+     * Expects "/from" and "/to" tokens to delimit the event's time range.
+     *
+     * @param words The command split by spaces; words[0] is "event".
+     * @return A new Event task.
+     */
     private static Event createEvent(String[] words) {
         int fromIndex = 0;
         int toIndex = 0;
@@ -42,6 +72,14 @@ public class Parser {
         return new Event(description, from, to);
     }
 
+    /**
+     * Parses a task from a raw command string (used when loading from file).
+     *
+     * @param line The raw task string e.g. "todo read book".
+     * @return The corresponding Task object.
+     * @throws EmptyBodyException      If the task has no description.
+     * @throws UnknownCommandException If the task type is unrecognized.
+     */
     public static Task parseTaskFromString(String line) throws EmptyBodyException, UnknownCommandException {
         String[] words = line.split(" ");
         String command = words[0];
@@ -57,6 +95,14 @@ public class Parser {
         throw new UnknownCommandException();
     }
 
+    /**
+     * Parses and executes the user's command, updating tasks, UI, and storage as needed.
+     *
+     * @param line    The full command string entered by the user.
+     * @param tasks   The current task list to operate on.
+     * @param ui      The UI object used for displaying output.
+     * @param storage The storage object used for persisting tasks.
+     */
     public static void handleCommand(String line, TaskList tasks, Ui ui, Storage storage) {
         String[] words = line.split(" ");
         String command = words[0];

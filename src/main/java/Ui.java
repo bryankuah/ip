@@ -1,5 +1,9 @@
 import java.util.Scanner;
 
+/**
+ * Handles all user-facing interactions for the NIG chatbot.
+ * Reads user input and displays formatted output messages and task information.
+ */
 public class Ui {
 
     private static final String SEPARATOR = "____________________________________________________________";
@@ -15,26 +19,48 @@ public class Ui {
 
     private Scanner in;
 
+    /**
+     * Constructs an Ui object and initializes the input scanner.
+     */
     public Ui() {
         in = new Scanner(System.in);
     }
 
+    /**
+     * Reads and returns a single line of user input.
+     *
+     * @return The command string entered by the user.
+     */
     public String readCommand() {
         return in.nextLine();
     }
 
+    /**
+     * Displays the welcome message at application startup.
+     */
     public void showWelcomeMessage() {
         System.out.println(LOGO);
     }
 
+    /**
+     * Displays the goodbye message when the user exits.
+     */
     public void showGoodbyeMessage() {
         System.out.println(GOODBYE);
     }
 
+    /**
+     * Prints a horizontal separator line.
+     */
     public void showLine() {
         System.out.println(SEPARATOR);
     }
 
+    /**
+     * Displays all tasks in the given TaskList with their index numbers.
+     *
+     * @param tasks The TaskList to display.
+     */
     public void showTaskList(TaskList tasks) {
         showLine();
         System.out.println(" Here are the tasks in your list:");
@@ -46,6 +72,12 @@ public class Ui {
         showLine();
     }
 
+    /**
+     * Displays a confirmation message after marking or unmarking a task.
+     *
+     * @param task   The task that was marked or unmarked.
+     * @param isDone True if marked as done, false if marked as not done.
+     */
     public void showMarkedTask(Task task, boolean isDone) {
         showLine();
         if (isDone) {
@@ -58,6 +90,12 @@ public class Ui {
         showLine();
     }
 
+    /**
+     * Displays a confirmation message after a new task is added.
+     *
+     * @param task The task that was added.
+     * @param size The updated number of tasks in the list.
+     */
     public void showTaskAdded(Task task, int size) {
         showLine();
         System.out.println(" Got it. I've added this task:");
@@ -67,6 +105,12 @@ public class Ui {
         showLine();
     }
 
+    /**
+     * Displays a confirmation message after a task is deleted.
+     *
+     * @param task The task that was removed.
+     * @param size The updated number of tasks remaining in the list.
+     */
     public void showTaskDeleted(Task task, int size) {
         showLine();
         System.out.println(" Noted. I've removed this task:");
@@ -87,12 +131,20 @@ public class Ui {
         showLine();
     }
 
+    /**
+     * Displays an error message when an unrecognized command is entered.
+     */
     public void handleUnknownCommand() {
         showLine();
         System.out.println(" ERROR: command unknown");
         showLine();
     }
 
+    /**
+     * Displays an error message when a command is entered without required arguments.
+     *
+     * @param command The command that was entered without its required body.
+     */
     public void handleEmptyBody(String command) {
         showLine();
         System.out.print(" ERROR: ");
@@ -114,6 +166,11 @@ public class Ui {
         showLine();
     }
 
+    /**
+     * Displays an error message with correct usage when a command is badly formatted.
+     *
+     * @param command The command that was used with incorrect format.
+     */
     public void handleBadFormat(String command) {
         showLine();
         System.out.print(" ERROR: incorrect usage of ");
