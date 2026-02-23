@@ -1,6 +1,5 @@
 import java.util.Scanner;
 import java.util.Arrays;
-import java.util.ArrayList;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -9,19 +8,9 @@ import java.io.IOException;
 public class Nig {
     private static final String FILE_PATH = "data/nig.txt";
 
-    private static final String LOGO = "____________________________________________________________\n"
-            + " Hello! I'm NIG\n"
-            + " What can I do for you?\n"
-            + "____________________________________________________________\n";
+    private Ui ui;
 
-    private static final String GOODBYE = "____________________________________________________________\n"
-            + " Bye. Hope to see you again soon!\n"
-            + "____________________________________________________________\n";
-
-    private static final String SEPARATOR = "____________________________________________________________";
-
-
-    private static ArrayList<Task> tasks = new ArrayList<>();
+    private TaskList tasks;
 
     public static boolean isNotInteger(String str) {
         if (str == null) {
@@ -35,20 +24,8 @@ public class Nig {
         }
     }
 
-    // Prints out all the tasks
-    private static void listTasks() {
-        System.out.println(SEPARATOR);
-        System.out.println(" Here are the tasks in your list:");
-        for (int i = 0; i < tasks.size(); i++) {
-            Task currentTask = tasks.get(i);
-            System.out.print(" " + (i + 1) + ".");
-            System.out.println(currentTask);
-        }
-        System.out.println(SEPARATOR);
-    }
-
     // Mark a specific task as done
-    private static void handleMark(String[] words)
+    private void handleMark(String[] words)
             throws BadFormatException, EmptyBodyException {
         if (words.length < 2) {
             throw new EmptyBodyException();
@@ -57,20 +34,17 @@ public class Nig {
             throw new BadFormatException();
         }
         int taskNumber = Integer.parseInt(words[1]);
-        if (taskNumber > tasks.size()) {
+        if (taskNumber > tasks.getSize()) {
             throw new BadFormatException();
         }
-        Task taskToMark = tasks.get(taskNumber - 1);
+        Task taskToMark = tasks.getTask(taskNumber - 1);
         taskToMark.markAsDone();
-        System.out.println(SEPARATOR);
-        System.out.println(" Nice! I've marked this task as done:");
-        System.out.println("   [X] " + taskToMark.getDescription());
-        System.out.println(SEPARATOR);
+        ui.showMarkedTask(taskToMark, true);
         saveToFile();
     }
 
     // Mark a specific task as undone
-    private static void handleUnmark(String[] words)
+    private void handleUnmark(String[] words)
             throws BadFormatException, EmptyBodyException {
         if (words.length < 2) {
             throw new EmptyBodyException();
@@ -79,30 +53,23 @@ public class Nig {
             throw new BadFormatException();
         }
         int taskNumber = Integer.parseInt(words[1]);
-        if (taskNumber > tasks.size()) {
+        if (taskNumber > tasks.getSize()) {
             throw new BadFormatException();
         }
-        Task taskToMark = tasks.get(taskNumber - 1);
+        Task taskToMark = tasks.getTask(taskNumber - 1);
         taskToMark.markAsUndone();
-        System.out.println(SEPARATOR);
-        System.out.println(" OK, I've marked this task as not done yet:");
-        System.out.println("   [ ] " + taskToMark.getDescription());
-        System.out.println(SEPARATOR);
+        ui.showMarkedTask(taskToMark, false);
         saveToFile();
     }
 
     // Print latest task and increment taskCount
-    private static void handleNewTask() {
-        System.out.println(SEPARATOR);
-        System.out.println(" Got it. I've added this task:");
-        System.out.print("   ");
-        System.out.println(tasks.get(tasks.size() - 1));
-        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-        System.out.println(SEPARATOR);
+    private void handleNewTask() {
+        Task newTaskAdded = tasks.getTask(tasks.getSize() - 1);
+        ui.showTaskAdded(newTaskAdded, tasks.getSize());
         saveToFile();
     }
 
-    private static void deleteTask(String[] words)
+    private void deleteTask(String[] words)
             throws EmptyBodyException, BadFormatException {
         if (words.length < 2) {
             throw new EmptyBodyException();
@@ -111,32 +78,26 @@ public class Nig {
             throw new BadFormatException();
         }
         int taskNumber = Integer.parseInt(words[1]);
-        if (taskNumber > tasks.size()) {
+        if (taskNumber > tasks.getSize()) {
             throw new BadFormatException();
         }
-        Task taskToDelete = tasks.get(taskNumber - 1);
-        System.out.println(SEPARATOR);
-        System.out.println(" Noted. I've removed this task:");
-        System.out.print("   ");
-        System.out.println(taskToDelete);
-        tasks.remove(taskNumber - 1);
-        System.out.println(" Now you have " + tasks.size() + " tasks in the list.");
-        System.out.println(SEPARATOR);
+        Task taskDeleted = tasks.deleteTask(taskNumber - 1);
+        ui.showTaskDeleted(taskDeleted, tasks.getSize());
         saveToFile();
     }
 
     // Add a new Todo object to tasks
-    private static void addTodo(String[] words)
+    private void addTodo(String[] words)
             throws EmptyBodyException {
         if (words.length < 2) {
             throw new EmptyBodyException();
         }
         String description = String.join(" ", Arrays.copyOfRange(words, 1, words.length));
-        tasks.add(new Todo(description));
+        tasks.addTask(new Todo(description));
     }
 
     // Add a new Deadline object to tasks
-    private static void addDeadline(String[] words)
+    private void addDeadline(String[] words)
             throws EmptyBodyException {
         if (words.length < 2) {
             throw new EmptyBodyException();
@@ -147,11 +108,11 @@ public class Nig {
         }
         String description = String.join(" ", Arrays.copyOfRange(words, 1, byIndex));
         String by = String.join(" ", Arrays.copyOfRange(words, byIndex + 1, words.length));
-        tasks.add(new Deadline(description, by));
+        tasks.addTask(new Deadline(description, by));
     }
 
     // Add a new Event object to tasks
-    private static void addEvent(String[] words)
+    private void addEvent(String[] words)
             throws EmptyBodyException {
         if (words.length < 2) {
             throw new EmptyBodyException();
@@ -167,16 +128,16 @@ public class Nig {
         String description = String.join(" ", Arrays.copyOfRange(words, 1, fromIndex));
         String from = String.join(" ", Arrays.copyOfRange(words, fromIndex + 1, toIndex));
         String to = String.join(" ", Arrays.copyOfRange(words, toIndex + 1, words.length));
-        tasks.add(new Event(description, from, to));
+        tasks.addTask(new Event(description, from, to));
     }
 
     // Read user command and calls the relevant command handler
-    private static void handleCommand(String line) {
+    private void handleCommand(String line) {
         String[] words = line.split(" ");
         String command = words[0];
         try {
             if (command.equals("list")) {
-                listTasks();
+                ui.showTaskList(tasks);
             } else if (command.equals("mark")) {
                 handleMark(words);
             } else if (command.equals("unmark")) {
@@ -196,82 +157,27 @@ public class Nig {
                 throw new UnknownCommandException();
             }
         } catch (UnknownCommandException e) {
-            handleUnknownCommand();
+            ui.handleUnknownCommand();
         } catch (EmptyBodyException e) {
-            handleEmptyBody(command);
+            ui.handleEmptyBody(command);
         } catch (BadFormatException | IndexOutOfBoundsException e) {
-            handleBadFormat(command);
+            ui.handleBadFormat(command);
         }
     }
 
-    private static void handleUnknownCommand() {
-        System.out.println(SEPARATOR);
-        System.out.println(" ERROR: command unknown");
-        System.out.println(SEPARATOR);
-    }
-
-    private static void handleEmptyBody(String command) {
-        System.out.println(SEPARATOR);
-        System.out.print(" ERROR: ");
-        if (command.equals("mark")) {
-            System.out.println("please input a task number to mark");
-        } else if (command.equals("unmark")) {
-            System.out.println("please input a task number to unmark");
-        } else if (command.equals("delete")) {
-            System.out.println("please input a task number to delete");
-        } else if (command.equals("todo")) {
-            System.out.println("description of todo cannot be empty");
-        } else if (command.equals("deadline")) {
-            System.out.println("description of deadline cannot be empty");
-        } else if (command.equals("event")) {
-            System.out.println("description of event cannot be empty");
-        }
-        System.out.println(SEPARATOR);
-    }
-
-    private static void handleBadFormat(String command) {
-        System.out.println(SEPARATOR);
-        System.out.print(" ERROR: incorrect usage of ");
-        if (command.equals("mark")) {
-            System.out.println("mark");
-            System.out.println(" Please use a valid task number");
-            System.out.println(" Proper Format: mark <number>");
-        } else if (command.equals("unmark")) {
-            System.out.println("unmark");
-            System.out.println(" Please use a valid task number");
-            System.out.println(" Proper Format: unmark <number>");
-        } else if (command.equals("delete")) {
-            System.out.println("delete");
-            System.out.println(" Please use a valid task number");
-            System.out.println(" Proper Format: delete <number>");
-        } else if (command.equals("todo")) {
-            System.out.println("todo");
-            System.out.println(" Proper Format: todo <description>");
-        } else if (command.equals("deadline")) {
-            System.out.println("deadline");
-            System.out.println(" Proper Format: deadline <description> /by <date>");
-        } else if (command.equals("event")) {
-            System.out.println("event");
-            System.out.println(" Proper Format: event <description> /from <date> /to <date>");
-        }
-        System.out.println(SEPARATOR);
-    }
-
-    private static void runCommandLoop() {
-        String line;
-        Scanner in = new Scanner(System.in);
+    private void runCommandLoop() {
         while (true) {
-            line = in.nextLine();
+            String command = ui.readCommand();
             // loops until user enters "bye"
-            if (line.equals("bye")) {
+            if (command.equals("bye")) {
                 break;
             }
-            handleCommand(line);
+            handleCommand(command);
         }
     }
 
     // Read line from file and adds to task list
-    private static void handleFileLine(String line) {
+    private void handleFileLine(String line) {
         String[] words = line.split(" ");
         String command = words[0];
         try {
@@ -285,15 +191,15 @@ public class Nig {
                 throw new UnknownCommandException();
             }
         } catch (UnknownCommandException e) {
-            handleUnknownCommand();
+            ui.handleUnknownCommand();
         } catch (EmptyBodyException e) {
-            handleEmptyBody(command);
+            ui.handleEmptyBody(command);
         } catch (IndexOutOfBoundsException e) {
-            handleBadFormat(command);
+            ui.handleBadFormat(command);
         }
     }
 
-    private static void loadSavedContent() {
+    private void loadSavedContent() {
         try {
             File f = new File(FILE_PATH);
             if (!f.exists()) {
@@ -304,18 +210,19 @@ public class Nig {
                 String line = s.nextLine();
                 String[] words = line.split(" \\| ");
                 handleFileLine(words[1]);
-                Task newlyAdded = tasks.get(tasks.size() - 1);
+                Task newlyAdded = tasks.getTask(tasks.getSize() - 1);
                 if (Integer.parseInt(words[0]) == 1) {
                     newlyAdded.markAsDone();
                 }
             }
             s.close();
         } catch (FileNotFoundException e) {
+            System.out.println(" New user detected");
             return;
         }
     }
 
-    private static void saveToFile() {
+    private void saveToFile() {
         try {
             File directory = new File("data");
             if (!directory.exists()) {
@@ -323,28 +230,34 @@ public class Nig {
             }
 
             FileWriter fw = new FileWriter(FILE_PATH);
-            for (int i = 0; i < tasks.size(); i++) {
-                Task currentTask = tasks.get(i);
+            for (int i = 0; i < tasks.getSize(); i++) {
+                Task currentTask = tasks.getTask(i);
                 fw.write(currentTask.toFileFormat() + "\n");
             }
             fw.close();
         } catch (IOException e) {
-            System.out.println(SEPARATOR);
+            ui.showLine();
             System.out.println(" ERROR: Unable to save to file");
-            System.out.println(SEPARATOR);
+            ui.showLine();
         }
     }
 
-    private static void runWelcomeSequence() {
+    public Nig(String filePath) {
+        ui = new Ui();
+        tasks = new TaskList();
+
         loadSavedContent();
-        System.out.println(LOGO);
     }
 
-    public static void main(String[] args) {
-        runWelcomeSequence();
+    public void run() {
+        ui.showWelcomeMessage();
 
         runCommandLoop();
 
-        System.out.println(GOODBYE);
+        ui.showGoodbyeMessage();
+    }
+
+    public static void main(String[] args) {
+        new Nig(FILE_PATH).run();
     }
 }
