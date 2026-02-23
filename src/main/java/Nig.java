@@ -1,3 +1,8 @@
+/**
+ * Main class for the NIG task manager chatbot.
+ * Manages the lifecycle of the application including loading data,
+ * running the command loop, and printing to console
+ */
 public class Nig {
     private static final String FILE_PATH = "data/nig.txt";
 
@@ -7,6 +12,10 @@ public class Nig {
 
     private Storage storage;
 
+    /**
+     * Runs the main command loop, reading and processing user commands
+     * until the user enters "bye".
+     */
     private void runCommandLoop() {
         while (true) {
             String command = ui.readCommand();
@@ -18,6 +27,11 @@ public class Nig {
         }
     }
 
+    /**
+     * Constructs a Nig instance and loads existing tasks from file.
+     *
+     * @param filePath Path to the data file for persisting tasks.
+     */
     public Nig(String filePath) {
         ui = new Ui();
         tasks = new TaskList();
@@ -25,6 +39,9 @@ public class Nig {
         storage.load(tasks);
     }
 
+    /**
+     * Starts the chatbot: shows welcome, runs loop, then shows goodbye.
+     */
     public void run() {
         ui.showWelcomeMessage();
 
@@ -33,6 +50,11 @@ public class Nig {
         ui.showGoodbyeMessage();
     }
 
+    /**
+     * Entry point of the NIG application.
+     *
+     * @param args Command-line arguments (not used).
+     */
     public static void main(String[] args) {
         new Nig(FILE_PATH).run();
     }

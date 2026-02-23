@@ -4,13 +4,28 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+/**
+ * Handles loading and saving of task data to and from a local text file.
+ * Data is stored in a pipe-delimited format: {@code DONE_STATUS | TASK_COMMAND}.
+ */
 public class Storage {
     private String filePath;
 
+    /**
+     * Constructs a Storage object targeting the given file path.
+     *
+     * @param filePath Path to the data file for reading and writing tasks.
+     */
     public Storage(String filePath) {
         this.filePath = filePath;
     }
 
+    /**
+     * Loads tasks from the data file into the provided TaskList.
+     * Silently skips file-not-found (first-time user) and skips malformed entries.
+     *
+     * @param tasks The TaskList to populate with loaded tasks.
+     */
     public void load(TaskList tasks) {
         try {
             File f = new File(filePath);
@@ -39,6 +54,12 @@ public class Storage {
         }
     }
 
+    /**
+     * Saves all tasks from the TaskList to the data file.
+     * Creates the {@code data/} directory if it does not exist.
+     *
+     * @param tasks The TaskList whose tasks should be saved.
+     */
     public void save(TaskList tasks) {
         try {
             File directory = new File("data");
